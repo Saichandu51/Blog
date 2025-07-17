@@ -1,12 +1,12 @@
 import os
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from datetime import datetime
 
-# Initialize Flask app
-app = Flask(__name__, 
-           template_folder='../frontend/templates', 
+# Initialize Flask app with template/static folders
+app = Flask(__name__,
+           template_folder='../frontend/templates',
            static_folder='../frontend/static')
 
 # Configuration
@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db)  # This registers the 'db' commands
 
 # Models
 class Post(db.Model):
@@ -58,9 +58,10 @@ def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', post=post)
 
-# Application factory pattern
 def create_app():
+    """Application factory pattern"""
     with app.app_context():
+        # Create tables if they don't exist
         db.create_all()
     return app
 
