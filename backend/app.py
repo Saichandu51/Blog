@@ -3,24 +3,32 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime
-from flask_migrate import Migrate
 
-app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+# Initialize Flask app
+app = Flask(__name__, 
+           template_folder='../frontend/templates', 
+           static_folder='../frontend/static')
 
-# Configuration - Works with both SQLite (local) and PostgreSQL (Render)
+# Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog.db').replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 'sqlite:///blog.db'
+).replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-migrate = Migrate(app, db)
-# Model
+
+# Models
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"Post('{self.title}', '{self.date_posted}')"
 
 # Routes
 @app.route('/')
@@ -50,7 +58,12 @@ def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', post=post)
 
-if __name__ == '__main__':
+# Application factory pattern
+def create_app():
     with app.app_context():
         db.create_all()
+    return app
+
+if __name__ == '__main__':
+    app = create_app()
     app.run(host='0.0.0.0', port=9000, debug=True)
