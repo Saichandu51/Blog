@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>Welcome to BlogSphere</h1>
+    <p>Share your thoughts with the world</p>
+    <a href="{{ url_for('write') }}" class="btn-primary">Start Writing</a>
+</div>
+
+<div class="blog-list">
+    <h2>Recent Posts</h2>
+    <div class="posts-container">
+        {% for post in posts %}
+        <div class="post-card" onclick="window.location.href='{{ url_for('view_post', post_id=post.id) }}'">
+            <h3>{{ post.title }}</h3>
+            <p class="post-excerpt">{{ post.content[:150] }}...</p>
+            <div class="post-meta">
+                <span class="post-date">{{ post.date_posted.strftime('%B %d, %Y') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
