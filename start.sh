@@ -2,15 +2,15 @@
 set -e
 
 cd backend
+export PYTHONPATH=$PYTHONPATH:$(pwd)
 export FLASK_APP=wsgi.py
+export PORT=${PORT:-9000}
 
-# Initialize new database if none exists
-if [ ! -f "instance/blog.db" ]; then
+# Initialize if no migrations exist
+if [ ! -d "migrations" ]; then
     flask db init
     flask db migrate -m "initial migration"
 fi
 
-# Always run upgrades
 flask db upgrade
-
 gunicorn --bind 0.0.0.0:$PORT wsgi:app
