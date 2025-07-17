@@ -1,21 +1,21 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime
-import os
+from flask_migrate import Migrate
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
-# Configuration
-app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+# Configuration - Works with both SQLite (local) and PostgreSQL (Render)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog.db').replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Database setup
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-# Models
+migrate = Migrate(app, db)
+# Model
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -50,7 +50,6 @@ def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', post=post)
 
-# Entry point
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

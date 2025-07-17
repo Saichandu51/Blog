@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: blog-website
+    runtime: python
+    buildCommand: |
+      pip install -r backend/requirements.txt
+      python -m flask db upgrade
+    startCommand: ./start.sh
+    envVars:
+      - key: FLASK_APP
+        value: backend.wsgi
+      - key: SECRET_KEY
+        generateValue: true
+databases:
+  - name: blogdb
+    plan: free
