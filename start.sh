@@ -2,5 +2,6 @@
 set -e
 
 cd backend
+export FLASK_APP=wsgi.py
 flask db upgrade
 gunicorn --bind 0.0.0.0:$PORT wsgi:app
